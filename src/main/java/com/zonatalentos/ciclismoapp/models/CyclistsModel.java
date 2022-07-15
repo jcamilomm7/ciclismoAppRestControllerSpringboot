@@ -16,8 +16,6 @@ public class CyclistsModel {
     private String codigoEquipo;
     private String nombre;
     private String pais;
-
-
     public String getId() {
         return id;
     }

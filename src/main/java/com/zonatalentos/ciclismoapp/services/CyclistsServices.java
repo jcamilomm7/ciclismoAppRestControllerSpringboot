@@ -4,7 +4,6 @@ import com.zonatalentos.ciclismoapp.models.CyclingTeamModel;
 import com.zonatalentos.ciclismoapp.models.CyclistsModel;
 import com.zonatalentos.ciclismoapp.repository.CyclingTeamRepository;
 import com.zonatalentos.ciclismoapp.repository.CyclistsRepository;
-import com.zonatalentos.ciclismoapp.response.CyclingTeamResponse;
 import com.zonatalentos.ciclismoapp.response.CyclistResponseOne;
 import com.zonatalentos.ciclismoapp.response.CyclistsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,40 +25,57 @@ public class CyclistsServices {
     public CyclistResponseOne crearCiclista(CyclistsModel cyclistsModel) {
         CyclistResponseOne cyclistResponseOne = new CyclistResponseOne();
 
-        var codigoGenerado = UUID.randomUUID().toString().toUpperCase().substring(0,3);
+        var codigoGenerado = UUID.randomUUID().toString().toUpperCase().substring(0, 3);
         cyclistsModel.setCodigoCiclista(codigoGenerado);
 
         ArrayList<CyclingTeamModel> cyclingTeamModels = (ArrayList<CyclingTeamModel>) this.cyclingTeamRepository.findAll();
+        ArrayList<CyclistsModel> cyclistsModelsResult = (ArrayList<CyclistsModel>) this.cyclistsRepository.findAll();
+        ArrayList<CyclistsModel> cyclistsModelsEquipo = new ArrayList<>();
 
-        for (var i=0;i< cyclingTeamModels.size();i++){
-            if(cyclingTeamModels.get(i).getCodigoEquipo().equalsIgnoreCase(cyclistsModel.getCodigoEquipo())){
-                cyclistResponseOne.setMensaje("EL ciclista se creo correctamente");
-                 CyclistsModel result= cyclistsRepository.save(cyclistsModel);
-                 cyclistResponseOne.setCyclistsModels(Optional.of(result));
-                 return cyclistResponseOne;
+       // Se verifica que el equipo no tenga el numero maximo permitido de ciclistas (8)
+        for (var i = 0; i < cyclistsModelsResult.size(); i++) {
+            if (cyclistsModelsResult.get(i).getCodigoEquipo().equalsIgnoreCase(cyclistsModel.getCodigoEquipo())) {
+                cyclistsModelsEquipo.add(cyclistsModelsResult.get(i));
             }
         }
 
-        cyclistResponseOne.setMensaje("El codigo del equipo es incorrecto");
+        if (cyclistsModelsEquipo.size() < 8) {
+            for (var i = 0; i < cyclingTeamModels.size(); i++) {
+                if (cyclingTeamModels.get(i).getCodigoEquipo().equalsIgnoreCase(cyclistsModel.getCodigoEquipo())) {
+                    cyclistResponseOne.setMensaje("EL ciclista se creo correctamente");
+                    CyclistsModel result = cyclistsRepository.save(cyclistsModel);
+                    cyclistResponseOne.setCyclistsModels(Optional.of(result));
+                    return cyclistResponseOne;
+                }
+            }
 
-      return cyclistResponseOne;
+            cyclistResponseOne.setMensaje("El codigo del equipo es incorrecto");
+
+            return cyclistResponseOne;
+
+        } else {
+            cyclistResponseOne.setMensaje("No es posible el registro , se alcanzo el numero maximo de 8 ciclistas pro equipo");
+            return cyclistResponseOne;
+
+        }
+
 
     }
 
-    public CyclistsResponse listarCiclistas(){
+    public CyclistsResponse listarCiclistas() {
         CyclistsResponse cyclistsResponse = new CyclistsResponse();
 
-        var result2 =(ArrayList<CyclistsModel>) cyclistsRepository.findAll();
+        var result2 = (ArrayList<CyclistsModel>) cyclistsRepository.findAll();
         cyclistsResponse.setCyclistsModels(result2);
         cyclistsResponse.setMensaje("Lista de ciclistas");
         return cyclistsResponse;
     }
 
-    public CyclistsResponse eliminarCiclista(String id){
+    public CyclistsResponse eliminarCiclista(String id) {
 
         CyclistsResponse cyclistsResponse = new CyclistsResponse();
 
-        if (!cyclistsRepository.findById(id).isEmpty()){
+        if (!cyclistsRepository.findById(id).isEmpty()) {
             cyclistsRepository.deleteById(id);
             cyclistsResponse.setMensaje("El ciclista ha sido eliminado con exito");
             return cyclistsResponse;
@@ -71,29 +87,29 @@ public class CyclistsServices {
     }
 
 
-    public CyclistResponseOne listarCiclistasPorId(String id){
+    public CyclistResponseOne listarCiclistasPorId(String id) {
 
-    CyclistResponseOne cyclistResponseOne = new CyclistResponseOne();
+        CyclistResponseOne cyclistResponseOne = new CyclistResponseOne();
 
-    Optional<CyclistsModel> cyclistsModel =  cyclistsRepository.findById(id);
+        Optional<CyclistsModel> cyclistsModel = cyclistsRepository.findById(id);
 
 
-    if (!cyclistsModel.isEmpty()){
-        cyclistResponseOne.setMensaje("Se encontro el ciclista registrado en la bd");
-        cyclistResponseOne.setCyclistsModels(cyclistsModel);
+        if (!cyclistsModel.isEmpty()) {
+            cyclistResponseOne.setMensaje("Se encontro el ciclista registrado en la bd");
+            cyclistResponseOne.setCyclistsModels(cyclistsModel);
+            return cyclistResponseOne;
+
+        }
+        cyclistResponseOne.setMensaje("No se encontro el ciclista registrado en la bd");
         return cyclistResponseOne;
 
     }
-        cyclistResponseOne.setMensaje("No se encontro el ciclista registrado en la bd");
-    return cyclistResponseOne;
-
-}
 
     public CyclistResponseOne actualizarCiclista(CyclistsModel cyclistsModel) {
         CyclistResponseOne cyclistResponseOne = new CyclistResponseOne();
 
 
-        if(!cyclistsRepository.findById(cyclistsModel.getId()).isEmpty()){
+        if (!cyclistsRepository.findById(cyclistsModel.getId()).isEmpty()) {
             cyclistsRepository.save(cyclistsModel);
             cyclistResponseOne.setMensaje("El cilcista ha sido actualizado");
             cyclistResponseOne.setCyclistsModels(Optional.of(cyclistsModel));

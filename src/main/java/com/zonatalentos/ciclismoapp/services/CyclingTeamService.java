@@ -1,12 +1,9 @@
 package com.zonatalentos.ciclismoapp.services;
 
 import com.zonatalentos.ciclismoapp.models.CyclingTeamModel;
-import com.zonatalentos.ciclismoapp.models.CyclistsModel;
 import com.zonatalentos.ciclismoapp.repository.CyclingTeamRepository;
 import com.zonatalentos.ciclismoapp.response.CyclingTeamResponse;
 import com.zonatalentos.ciclismoapp.response.CyclingTeamResponseOne;
-import com.zonatalentos.ciclismoapp.response.CyclistResponseOne;
-import com.zonatalentos.ciclismoapp.response.CyclistsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,9 +57,7 @@ public class CyclingTeamService {
             return cyclingTeamResponseOne;
         }
 
-
         cyclingTeamResponseOne.setMensaje("El ciclista no existe en la bd");
-
         return cyclingTeamResponseOne;
 
     }
